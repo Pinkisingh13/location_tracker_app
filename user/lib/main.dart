@@ -1,16 +1,19 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:permission_handler/permission_handler.dart'; // Add this
+import 'package:permission_handler/permission_handler.dart'; 
 import 'package:geolocator/geolocator.dart';
 
 import 'firebase_options.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // Enable Crashlytics
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   runApp(const MyApp());
 }
 
@@ -22,6 +25,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'location tracking User',
       debugShowCheckedModeBanner: false,
+
       home: TrackedUserApp(),
     );
   }
@@ -48,18 +52,21 @@ class _TrackedUserHomeState extends State<TrackedUserHome> {
   @override
   void initState() {
     super.initState();
-    _requestLocationPermission(); // Request permission before sharing location
+    _requestLocationPermission(
+        context); // Request permission before sharing location
   }
 
   // Request location permissions
-  Future<void> _requestLocationPermission() async {
+  Future<void> _requestLocationPermission(BuildContext context) async {
     if (await Permission.location.isDenied) {
       final status = await Permission.location.request();
-      if (status.isDenied) {
-        // Show error message if permission is denied
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location permission is required.")),
-        );
+      if (mounted && status.isDenied) {
+        if (mounted) {
+          // Show error message if permission is denied
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Location permission is required.")),
+          ); 
+        }
         return;
       }
     }
@@ -111,15 +118,15 @@ class _TrackedUserHomeState extends State<TrackedUserHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Sharing Location")),
-      body: Center(
+      body: const Center(
         // child: Lottie.asset(
         //   'assets/animation/location_sharing.json',
         //   animate: true,
         //   backgroundLoading: true,
         // ),
-        child: Container(
+        child: SizedBox(
           width: 250,
-          child: const Text(
+          child: Text(
             "Your location is being shared in real-time.",
             style: TextStyle(fontSize: 23),
           ),
