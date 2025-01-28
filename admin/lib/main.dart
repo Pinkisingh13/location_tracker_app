@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'firebase_options.dart';
+import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,69 +13,15 @@ void main() async {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        title: 'Location Tracker Admin', 
-        debugShowCheckedModeBanner: false,
-        home: UserIdScreen());
-  }
-}
-
-
-class AdminUserHome extends StatefulWidget {
-  const AdminUserHome({super.key, required this.userId});
-  final String userId;
-
-  @override
-  State<AdminUserHome> createState() => _AdminUserHomeState();
-}
-
-class _AdminUserHomeState extends State<AdminUserHome> {
-  LatLng? userLocation;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchUserLocation();
-  }
-
-  // Fetch and listen to the user's location from Firebase
-  void fetchUserLocation() {
-    final DatabaseReference ref =
-        FirebaseDatabase.instance.ref("locations");
-    ref.child(widget.userId).onValue.listen((event) {
-      final data = event.snapshot.value as Map?;
-      if (data != null) {
-        setState(() {
-          userLocation = LatLng(data["latitude"], data["longitude"]);
-        });
-      }
-    });
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Tracked User Location")),
-      body: userLocation != null
-          ? GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: userLocation!,
-                zoom: 15,
-              ),
-              markers: {
-                Marker(
-                  markerId: const MarkerId("trackedUser"),
-                  position: userLocation!,
-                ),
-              },
-            )
-          : const Center(child: CircularProgressIndicator()),
+      title: 'Location Tracker Admin',
+      debugShowCheckedModeBanner: false,
+      // home: UserIdScreen(),
+      home: HomeScreen(),
     );
   }
 }
@@ -89,7 +36,7 @@ class UserIdScreen extends StatefulWidget {
 class _UserIdScreenState extends State<UserIdScreen> {
   final userIdController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-String? userId;
+  String? userId;
 
   void saveuserId() {
     if (formKey.currentState!.validate()) {
@@ -154,3 +101,67 @@ String? userId;
     );
   }
 }
+
+
+
+
+class AdminUserHome extends StatefulWidget {
+  const AdminUserHome({super.key, required this.userId});
+  final String userId;
+
+  @override
+  State<AdminUserHome> createState() => _AdminUserHomeState();
+}
+
+class _AdminUserHomeState extends State<AdminUserHome> {
+  LatLng? userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserLocation();
+  }
+
+  // Fetch and listen to the user's location from Firebase
+  void fetchUserLocation() {
+    final DatabaseReference ref = FirebaseDatabase.instance.ref("locations");
+    ref.child(widget.userId).onValue.listen((event) {
+      final data = event.snapshot.value as Map?;
+      if (data != null) {
+        setState(() {
+          userLocation = LatLng(data["latitude"], data["longitude"]);
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Tracked User Location")),
+      body: userLocation != null
+          ? GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: userLocation!,
+                zoom: 15,
+              ),
+              markers: {
+                Marker(
+                  markerId: const MarkerId("trackedUser"),
+                  position: userLocation!,
+                ),
+              },
+            )
+          : const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+
+// Admin: first register yourself
+  //  1. user1:
+        // Location
+  //  2. user2
+        // Location
+  //  3. user3
+        // Location

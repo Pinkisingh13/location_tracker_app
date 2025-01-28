@@ -26,19 +26,12 @@ class MyApp extends StatelessWidget {
       title: 'location tracking User',
       debugShowCheckedModeBanner: false,
 
-      home: TrackedUserApp(),
+      home: UserIdScreen(),
     );
   }
 }
 
-class TrackedUserApp extends StatelessWidget {
-  const TrackedUserApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(title: 'Tracked User', home: UserIdScreen());
-  }
-}
 
 class TrackedUserHome extends StatefulWidget {
   const TrackedUserHome({super.key, required this.userId});
@@ -49,11 +42,12 @@ class TrackedUserHome extends StatefulWidget {
 }
 
 class _TrackedUserHomeState extends State<TrackedUserHome> {
+
+  // init state to request location permission
   @override
   void initState() {
     super.initState();
-    _requestLocationPermission(
-        context); // Request permission before sharing location
+    _requestLocationPermission(context); // Request permission before sharing location
   }
 
   // Request location permissions
@@ -61,12 +55,11 @@ class _TrackedUserHomeState extends State<TrackedUserHome> {
     if (await Permission.location.isDenied) {
       final status = await Permission.location.request();
       if (mounted && status.isDenied) {
-        if (mounted) {
           // Show error message if permission is denied
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Location permission is required.")),
           ); 
-        }
+      
         return;
       }
     }
@@ -119,11 +112,6 @@ class _TrackedUserHomeState extends State<TrackedUserHome> {
     return Scaffold(
       appBar: AppBar(title: const Text("Sharing Location")),
       body: const Center(
-        // child: Lottie.asset(
-        //   'assets/animation/location_sharing.json',
-        //   animate: true,
-        //   backgroundLoading: true,
-        // ),
         child: SizedBox(
           width: 250,
           child: Text(
